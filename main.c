@@ -17,6 +17,7 @@
 
 #include "main.h"
 #include "uart.h"
+#include "ssi.h"
 
 #include <stdint.h>
 #include <math.h>
@@ -24,13 +25,8 @@
 #include <util/delay.h>
 
 #define DELAY 100
-#define UDELAY 3
-#define SLEN 30
-#define TM 20
 
 volatile uint8_t ADCvalue, cosVal, sinVal;
-void adc_prep(void);
-int ssi_read(int b);
 
 int main(void) {    
 	
@@ -58,37 +54,6 @@ int main(void) {
 	return 0;
 }
 
-int ssi_read(int b)
-{
-		int i, sangle=0, data[b];
-
-		PORTD = (1<<DDD5);
-		_delay_us(UDELAY);
-		PORTD = (0<<DDD5);
-		_delay_us(UDELAY); // begin read	
-
-		for (i=0; i<9; i++)
-		{
-			PORTD = (1<<DDD5);
-			_delay_us(UDELAY);
-
-			data[i] = (PIND & (1<<DDD6)) == (1<<DDD6) ? 1 : 0;
-
-			PORTD = (0<<DDD5);
-			_delay_us(UDELAY);
-		}
-
-		_delay_us(TM); // end read
-		
-		printf("S: ");
-		for (i=0; i<9; i++)
-		{
-			printf("%d", data[i]);
-			sangle += data[i] << (8-i);
-		}
-		return sangle;
-}
-		
 void adc_prep(void)
 {	
 // https://sites.google.com/site/qeewiki/books/avr-guide/analog-input
